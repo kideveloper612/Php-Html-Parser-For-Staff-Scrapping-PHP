@@ -4,42 +4,40 @@ require "vendor/autoload.php";
 use PHPHtmlParser\Dom;
 
 
-$url = $_GET['url'];
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+	echo("Just GET REQUESTS are allowed!");
+	return;
+}
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['url'])) {
+	$url = $_GET['url'];
+} else {
+	echo("Please put your url as request parameter");
+	return;
+}
+
 function send_request($url){
 	try {
-		$headers = array(
-			'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36'
-		);
-		$curl = curl_init();
-
-		curl_setopt_array($curl, array(
-			CURLOPT_URL => $url,
-			CURLOPT_HTTPHEADER => $headers,
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_ENCODING => "",
-			CURLOPT_MAXREDIRS => 10,
-			CURLOPT_TIMEOUT => 0,
-			CURLOPT_FOLLOWLOCATION => true,
-			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-			CURLOPT_CUSTOMREQUEST => "GET"
-		));
-
-		$response = curl_exec($curl);
+	    $curl = curl_init();
+	    curl_setopt($curl, CURLOPT_URL, $url);
+	    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+	    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+	    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+	    curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+	    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+	    $res = curl_exec($curl);
 
 		if (curl_errno($curl)) {
 		    throw new Exception(curl_error($ch), 1);
 		}
 		curl_close($curl);
-		return $response;
+		return $res;
 	}
 	catch (Exception $e) {
 		echo $e->getMessage();
 		sleep(3);
-		return send_request(url);
+		return send_request($url);
 	}
-		
 }
-
 
 function contents($content_doms) {
 	$result = array();
@@ -114,7 +112,7 @@ function contents($content_doms) {
 				'image' => $image
 			);
 
-			if (! in_array($line, $result)) {
+			if (array_filter($line) && !in_array($line, $result)) {
 				array_push($result, json_encode($line));
 			}
 		}
@@ -174,7 +172,7 @@ function staff_info_items($staff_items) {
 			'email' => $email,
 			'image' => $image
 		);
-		if (! in_array($line, $result)) {
+		if (array_filter($line) && !in_array($line, $result)) {
 			array_push($result,json_encode($line));
 		}
 	}
@@ -228,7 +226,7 @@ function uabb_wraps($uabb_wraps) {
 			'email' => '',
 			'image' => $image
 		);
-		if (! in_array($line, $result)) {
+		if (array_filter($line) && !in_array($line, $result)) {
 			array_push($result, json_encode($line));
 		}
 	}
@@ -281,7 +279,7 @@ function staff_items($staff_items) {
 			'email' => '',
 			'image' => $image
 		);
-		if (! in_array($line, $result)) {
+		if (array_filter($line) && !in_array($line, $result)) {
 			array_push($result, json_encode($line));
 		}
 	}
@@ -347,7 +345,109 @@ function box_containers($box_containers) {
 			'email' => '',
 			'image' => $image
 		);
-		if (! in_array($line, $result)) {
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function yui3_u_1_6_vcards($yui3_u_1_6_vcards) {
+	$result = array();
+	for ($i=0; $i < count($yui3_u_1_6_vcards); $i++) { 
+		$vcard = $yui3_u_1_6_vcards[$i];
+		$name_dom = $vcard -> find('.fn a');
+		if (count($name_dom) > 0){
+			$name = trim($name_dom -> text());
+		} else {
+			$name = '';
+		}
+		$title_dom = $vcard -> find('dd.title');
+		if (count($title_dom) > 0) {
+			$title = $title_dom -> text();
+		} else {
+			$title = '';
+		}
+		$image_dom = $vcard -> find('img');
+		if (count($image_dom) > 0) {
+			if ($image_dom -> hasAttribute('data-src')) {
+				$image = $image_dom -> getAttribute('data-src');
+			} elseif ($image_dom -> hasAttribute('src')) {
+				$image = $image_dom -> getAttribute('src');
+			} else {
+				$image = '';
+			}
+		} else {
+			$image = '';
+		}
+		$email_dom = $vcard -> find('.email');
+		if (count($email_dom)) {
+			$email = trim($email_dom -> text());
+		} else {
+			$email = '';
+		}
+		$phone_dom = $vcard -> find('.phone');
+		if (count($phone_dom) > 0) {
+			$phone = trim($phone_dom -> text());
+		} else {
+			$phone = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => $phone,
+			'email' => $email,
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function isDisplayable_contents($isDisplayable_contents) {
+	$result = [];
+	for ($i=0; $i < count($isDisplayable_contents); $i++) { 
+		$content = $isDisplayable_contents[$i];
+		$text_dom = $content -> find('.text');
+		if (count($text_dom) > 0) {
+			$name_dom = $text_dom -> find('[if^=title]');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				$name = '';
+			}
+			$title_dom = $text_dom -> find('[if^=subTitle]');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text());
+			} else {
+				$title = '';
+			}
+		} else {
+			$name = $title = '';
+		}
+		$media_dom = $content -> find('.media');
+		if (count($media_dom) > 0) {
+			$image_dom = $media_dom -> find('img');
+			if (count($image_dom) > 0 && $image_dom -> hasAttribute('src')) {
+				$image = $image_dom -> getAttribute('src');
+			} else {
+				$image = '';
+			}
+		} else {
+			$image = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => '',
+			'email' => '',
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
 			array_push($result, json_encode($line));
 		}
 	}
@@ -361,6 +461,8 @@ function dom_parse(){
 	$staff_items = $dom -> find('li[class*=staff-item]');
 	$uabb_wraps = $dom -> find('[class*=uabb-team-member-wrap]');
 	$box_containers = $dom -> find('#tabs-mtt .member-list [class*=box-container]');
+	$yui3_u_1_6_vcards = $dom -> find('#staffList .yui3-u-1-6 .vcard');
+	$isDisplayable_contents = $dom -> find('.deck section[if^=isDisplayable] .content');
 	if (count($staff_info_items) > 0) {
 		$output = staff_info_items($staff_info_items);
 	} elseif (count($uabb_wraps) > 0) {
@@ -369,20 +471,65 @@ function dom_parse(){
 		$output = staff_items($staff_items);
 	} elseif (count($box_containers) > 0) {
 		$output = box_containers($box_containers);
+	} elseif (count($yui3_u_1_6_vcards) > 0) {
+		$output = yui3_u_1_6_vcards($yui3_u_1_6_vcards);
+	} elseif (count($isDisplayable_contents) > 0) {
+		$output = isDisplayable_contents($isDisplayable_contents);
 	}
 	elseif (count($content_doms) > 0) {
 		$output = contents($content_doms);
 	}
+
+	// if (empty($output)) {
+	// 	return 'no';
+	// } else {
+	// 	return 'yes';
+	// }
 	
 	echo "<pre>";
 	print_r($output);
 	echo "</pre>";
 }
 
+
+// function read_urls() {
+// 	$file_name = './urls.csv';
+// 	$file = fopen($file_name, 'r');
+// 	$result = [];
+// 	while (! feof($file)) {
+// 		$line = fgetcsv($file);
+// 		if (is_array($line) && ! empty($line)) {
+// 			if (! in_array($line[0], $result)) {
+// 				array_push($result, $line[0]);
+// 			}
+// 		}
+// 	}
+// 	fclose($file);
+// 	return $result;
+// }
+
+// $urls = read_urls();
+// $urls = ['http://www.tonkinchevy.com/MeetOurDepartments'];
+// $dom = new Dom;
+// $fp = fopen('yet.csv', 'a');
+// $count = 0;
+// foreach ($urls as $url) {
+// 	$count += 1;
+// 	echo($count.' '.$url."\n");
+// 	$response = send_request($url);
+// 	$dom->load($response);
+// 	$r = dom_parse();
+// 	echo($r);
+// 	if ($r === 'no') {
+// 		fputcsv($fp, [$url]);
+// 	}
+// }
+// fclose($fp);
+
+
 $dom = new Dom;
 $response = send_request($url);
 $dom->load($response);
-dom_parse();
-
+$r = dom_parse();
 
 ?>
