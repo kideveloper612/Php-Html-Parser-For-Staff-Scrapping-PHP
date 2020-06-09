@@ -48,7 +48,7 @@ function contents($content_doms) {
 			if ($title_dom) {
 				$title = $title_dom -> text(true);
 			} else {
-				$title = '';
+				continue;
 			}
 			$givenName_dom = $employeeTitle -> find('[itemprop="givenName"]', 0);
 			if ($givenName_dom) {
@@ -129,13 +129,13 @@ function staff_info_items($staff_items) {
 			if ($title_dom) {
 				$title = trim($title_dom -> text());
 			} else {
-				$title = '';
+				continue;
 			}
 			$name_dom = $staff_text_wrap -> find('[class*=staff-info__name]');
 			if ($name_dom) {
 				$name = trim($name_dom -> firstChild() -> text());
 			} else {
-				$name = '';
+				continue;
 			}
 			$email_wrap = $staff_text_wrap -> find('[class*=staff-info__email-wrap]', 0);
 			if ($email_wrap) {
@@ -149,7 +149,7 @@ function staff_info_items($staff_items) {
 				$email = '';
 			}
 		} else {
-			$title = $name = $email = '';
+			continue;
 		}
 		$staff_info_image = $staff_items[$i] -> find('[class*=staff-info__image]', 0);
 		if ($staff_info_image) {
@@ -188,13 +188,13 @@ function uabb_wraps($uabb_wraps) {
 			if ($title_dom) {
 				$title = trim($title_dom -> text());
 			} else {
-				$title = '';
+				continue;
 			}
 			$name_dom = $uabb_team_content -> find('[class*=uabb-team-name-text]', 0);
 			if ($name_dom) {
 				$name = trim($name_dom -> text());
 			} else {
-				$name = '';
+				continue;
 			}
 			$description_dom = $uabb_team_content -> find('[class*=uabb-team-desc-text]', 0);
 			if ($description_dom) {
@@ -203,7 +203,7 @@ function uabb_wraps($uabb_wraps) {
 				$description = '';
 			}
 		} else {
-			$title = $name = $description = '';
+			continue;
 		}
 		$uabb_image_content = $uabb_wraps[$i] -> find('[class*=uabb-image-content]', 0);
 		if ($uabb_image_content) {
@@ -242,13 +242,13 @@ function staff_items($staff_items) {
 			if ($title_dom) {
 				$title = trim($title_dom -> text());
 			} else {
-				$title = '';
+				continue;
 			}
 			$name_dom = $text_dom -> find('h3');
 			if ($name_dom) {
 				$name = trim($name_dom -> text());
 			} else {
-				$name = '';
+				continue;
 			}
 			$phone_dom = $text_dom -> find('[class*=staffphone]', 0);
 			if ($phone_dom) {
@@ -257,7 +257,7 @@ function staff_items($staff_items) {
 				$phone = '';
 			}
 		} else {
-			$title = $name = $phone = '';
+			continue;
 		}
 		$image_dom = $staff_items[$i] -> find('img');
 		if ($image_dom) {
@@ -295,13 +295,13 @@ function box_containers($box_containers) {
 			if ($title_dom) {
 				$title = trim($title_dom -> text());
 			} else {
-				$title = '';
+				continue;
 			}
 			$name_dom = $details_sect -> find('.info .name');
 			if ($name_dom) {
 				$name = trim($name_dom -> text());
 			} else {
-				$name = '';
+				continue;
 			}
 			$description_dom = $details_sect -> find('.info .description');
 			if ($description_dom) {
@@ -322,7 +322,7 @@ function box_containers($box_containers) {
 				$email = '';
 			}
 		} else {
-			$title = $name = $description = $phone = $email = '';
+			continue;
 		}
 		$img_sect = $box_containers[$i] -> find('.img-sect');
 		if ($img_sect) {
@@ -360,13 +360,13 @@ function yui3_u_1_6_vcards($yui3_u_1_6_vcards) {
 		if (count($name_dom) > 0){
 			$name = trim($name_dom -> text());
 		} else {
-			$name = '';
+			continue;
 		}
 		$title_dom = $vcard -> find('dd.title');
 		if (count($title_dom) > 0) {
 			$title = $title_dom -> text();
 		} else {
-			$title = '';
+			continue;
 		}
 		$image_dom = $vcard -> find('img');
 		if (count($image_dom) > 0) {
@@ -408,7 +408,7 @@ function yui3_u_1_6_vcards($yui3_u_1_6_vcards) {
 }
 
 function isDisplayable_contents($isDisplayable_contents) {
-	$result = [];
+	$result = array();
 	for ($i=0; $i < count($isDisplayable_contents); $i++) { 
 		$content = $isDisplayable_contents[$i];
 		$text_dom = $content -> find('.text');
@@ -417,16 +417,16 @@ function isDisplayable_contents($isDisplayable_contents) {
 			if (count($name_dom) > 0) {
 				$name = trim($name_dom -> text());
 			} else {
-				$name = '';
+				continue;
 			}
 			$title_dom = $text_dom -> find('[if^=subTitle]');
 			if (count($title_dom) > 0) {
 				$title = trim($title_dom -> text());
 			} else {
-				$title = '';
+				continue;
 			}
 		} else {
-			$name = $title = '';
+			continue;
 		}
 		$media_dom = $content -> find('.media');
 		if (count($media_dom) > 0) {
@@ -454,6 +454,62 @@ function isDisplayable_contents($isDisplayable_contents) {
 	return $result;
 }
 
+function tabDisplay_cards($site, $tabDisplay_cards) {
+	$result = array();
+	for ($i=0; $i < count($tabDisplay_cards); $i++) { 
+		$staff_info = $tabDisplay_cards[$i] -> find('.staff-info');
+		if (count($staff_info) > 0) {
+			$name_dom = $staff_info -> find('.staff-title');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				continue;
+			}
+			$title_dom = $staff_info -> find('.staff-desc');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> find('em') -> text());
+			} else {
+				continue;
+			}
+			$phone_dom = $staff_info -> find('[aria-label="Phone"]');
+			if (count($phone_dom) > 0) {
+				if ($phone_dom -> hasAttribute('href')) {
+					$phone = trim(str_replace('tel:', '', $phone_dom -> getAttribute('href')));
+				} else {
+					$phone = '';
+				}
+			} else {
+				$phone = '';
+			}
+		} else {
+			continue;
+		}
+		$staff_img = $tabDisplay_cards[$i] -> find('.staff-img');
+		if (count($staff_img) > 0) {
+			$image_dom = $staff_img -> find('img');
+			if (count($image_dom) > 0) {
+				$base_url = parse_url($site)['host'];
+				$image = join('/', array('http://'.parse_url($site)['host'], $image_dom -> getAttribute('src')));
+			} else {
+				$image = '';
+			}
+		} else {
+			$image = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => '',
+			'email' => '',
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
 function dom_parse(){
 	$dom = $GLOBALS['dom'];
 	$content_doms = $dom -> find('div[class=content]');
@@ -463,6 +519,7 @@ function dom_parse(){
 	$box_containers = $dom -> find('#tabs-mtt .member-list [class*=box-container]');
 	$yui3_u_1_6_vcards = $dom -> find('#staffList .yui3-u-1-6 .vcard');
 	$isDisplayable_contents = $dom -> find('.deck section[if^=isDisplayable] .content');
+	$tabDisplay_cards = $dom -> find('#tabDisplay .staff-card');
 	if (count($staff_info_items) > 0) {
 		$output = staff_info_items($staff_info_items);
 	} elseif (count($uabb_wraps) > 0) {
@@ -475,6 +532,8 @@ function dom_parse(){
 		$output = yui3_u_1_6_vcards($yui3_u_1_6_vcards);
 	} elseif (count($isDisplayable_contents) > 0) {
 		$output = isDisplayable_contents($isDisplayable_contents);
+	} elseif ($tabDisplay_cards) {
+		$output = tabDisplay_cards($GLOBALS['url'], $tabDisplay_cards);
 	}
 	elseif (count($content_doms) > 0) {
 		$output = contents($content_doms);
