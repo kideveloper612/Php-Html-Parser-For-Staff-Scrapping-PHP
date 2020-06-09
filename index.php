@@ -365,6 +365,8 @@ function yui3_u_1_6_vcards($yui3_u_1_6_vcards) {
 		$title_dom = $vcard -> find('dd.title');
 		if (count($title_dom) > 0) {
 			$title = $title_dom -> text();
+		} elseif (count($vcard -> find('.fn a span')) > 0) {
+			$title = $vcard -> find('.fn a span') -> text();
 		} else {
 			continue;
 		}
@@ -413,24 +415,47 @@ function isDisplayable_contents($isDisplayable_contents) {
 		$content = $isDisplayable_contents[$i];
 		$text_dom = $content -> find('.text');
 		if (count($text_dom) > 0) {
-			$name_dom = $text_dom -> find('[if^=title]');
-			if (count($name_dom) > 0) {
-				$name = trim($name_dom -> text());
+			$email = '';
+			$pre_name_dom = $text_dom -> find('.copy b');
+			if (count($pre_name_dom) > 0) {
+				$name = trim($pre_name_dom -> text());
 			} else {
-				continue;
+				$name = '';
 			}
-			$title_dom = $text_dom -> find('[if^=subTitle]');
-			if (count($title_dom) > 0) {
-				$title = trim($title_dom -> text());
+			$pre_title_dom = $text_dom -> find('.copy div > i');
+			if (count($pre_title_dom) > 0) {
+				$title = trim($pre_title_dom -> text());
 			} else {
-				continue;
+				$title = '';
 			}
+			$pre_email_dom = $text_dom -> find('.copy div:last-child');
+			if (count($pre_email_dom) > 0) {
+				$email = trim($pre_email_dom -> text());
+			} else {
+				$email = '';
+			}
+			if (empty($name)) {
+				$name_dom = $text_dom -> find('[if^=title]');
+				if (count($name_dom) > 0) {
+					$name = trim($name_dom -> text());
+				} else {
+					continue;
+				}
+				$title_dom = $text_dom -> find('[if^=subTitle]');
+				if (count($title_dom) > 0) {
+					$title = trim($title_dom -> text());
+				} else {
+					continue;
+				}
+			}
+			
 		} else {
 			continue;
 		}
 		$media_dom = $content -> find('.media');
 		if (count($media_dom) > 0) {
 			$image_dom = $media_dom -> find('img');
+
 			if (count($image_dom) > 0 && $image_dom -> hasAttribute('src')) {
 				$image = $image_dom -> getAttribute('src');
 			} else {
@@ -444,7 +469,7 @@ function isDisplayable_contents($isDisplayable_contents) {
 			'title' => $title,
 			'description' => '',
 			'phone' => '',
-			'email' => '',
+			'email' => $email,
 			'image' => $image
 		);
 		if (array_filter($line) && !in_array($line, $result)) {
@@ -500,8 +525,313 @@ function tabDisplay_cards($site, $tabDisplay_cards) {
 			'name' => $name, 
 			'title' => $title,
 			'description' => '',
+			'phone' => $phone,
+			'email' => '',
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function listing_employee_items($listing_employee_items) {
+	$result = array();
+	for ($i=0; $i < count($listing_employee_items); $i++) { 
+		$text_dom = $listing_employee_items[$i] -> find('.listing-employee__department-employee-description');
+		if (count($text_dom) > 0) {
+			$name_dom = $text_dom -> find('.listing-employee__department-employee-name');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				continue;
+			}
+			$title_dom = $text_dom -> find('.listing-employee__department-employee-job');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text());
+			} else {
+				continue;
+			}
+			$email_dom = $text_dom -> find('a');
+			if (count($email_dom) > 0 && $email_dom -> hasAttribute('href')) {
+				$email = trim(str_replace('mailto:', '', $email_dom -> getAttribute('href')));
+			} else {
+				$email = '';
+			}
+		} else {
+			continue;
+		}
+		$image_dom = $listing_employee_items[$i] -> find('img');
+		if (count($image_dom) > 0 ){
+			if ($image_dom -> hasAttribute('data-src')) {
+				$image = $image_dom -> getAttribute('data-src');
+			} elseif ($image_dom -> hasAttribute('src')) {
+				$image = $image_dom -> getAttribute('src');
+			} else {
+				$image = '';
+			}
+		} else {
+			$image = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => '',
+			'email' => $email,
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function listing_alpha_items($listing_alpha_items) {
+	$result = array();
+	for ($i=0; $i < count($listing_alpha_items); $i++) { 
+		$text_dom = $listing_alpha_items[$i] -> find('.listing-employee-alpha__department-employee-description');
+		if (count($text_dom) > 0) {
+			$name_dom = $text_dom -> find('.listing-employee-alpha__department-employee-name');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				continue;
+			}
+			$title_dom = $text_dom -> find('.listing-employee-alpha__department-employee-job');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text());
+			} else {
+				continue;
+			}
+			$email_dom = $text_dom -> find('.listing-employee-alpha__department-employee-email');
+			if (count($email_dom) > 0 && $email_dom -> hasAttribute('href')) {
+				$email = trim(str_replace('mailto:', '', $email_dom -> getAttribute('href')));
+			} else {
+				$email = '';
+			}
+			$phone_dom = $text_dom -> find('.listing-employee-alpha__department-employee-phone');
+			if (count($phone_dom) > 0 && $phone_dom -> hasAttribute('href')) {
+				$phone = trim(str_replace('tel:', '', $phone_dom -> getAttribute('href')));
+			} else {
+				$phone = '';
+			}
+		} else {
+			continue;
+		}
+		$image_dom = $listing_alpha_items[$i] -> find('img');
+		if (count($image_dom) > 0) {
+			if ($image_dom -> hasAttribute('data-src')) {
+				$image = trim($image_dom -> getAttribute('data-src'));
+			} elseif ($image_dom -> hasAttribute('src')) {
+				$image = trim($image_dom -> getAttribute('src'));
+			} else {
+				$image = '';
+			}
+		} else {
+			$image = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => $phone,
+			'email' => $email,
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function salesman_maincards($salesman_maincards) {
+	$result = array();
+	for ($i=0; $i < count($salesman_maincards); $i++) { 
+		$salesman_maincard = $salesman_maincards[$i];
+		$name_dom = $salesman_maincard -> find('.salesman__name');
+		if (count($name_dom) > 0) {
+			$name = $name_dom -> text();
+		} else {
+			continue;
+		}
+		$title_dom = $salesman_maincard -> find('.salesman__position');
+		if (count($title_dom) > 0) {
+			$title = $title_dom -> text();
+		} else {
+			continue;
+		}
+		$image_dom = $salesman_maincard -> find('img');
+		if (count($image_dom) > 0) {
+			if ($image_dom -> hasAttribute('data-src')) {
+				$image = $image_dom -> getAttribute('data-src');
+			} elseif ($image_dom -> hasAttribute('src')) {
+				$image = $image_dom -> getAttribute('src');
+			} else {
+				$image = '';
+			}
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
 			'phone' => '',
 			'email' => '',
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function wpstaff_persons($wpstaff_persons) {
+	$result = [];
+	for ($i=0; $i < count($wpstaff_persons); $i++) { 
+		$wpstaff_person = $wpstaff_persons[$i];
+		$text_dom = $wpstaff_person -> find('.wpstaff-person-info');
+		if (count($text_dom) > 0) {
+			$name_dom = $text_dom -> find('.wpstaff-person-info-name');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				continue;
+			}
+			$title_dom = $text_dom -> find('.wpstaff-person-info-title');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text());
+			} else {
+				continue;
+			}
+			$email_dom = $text_dom -> find('.wpstaff-person-info-email');
+			if (count($email_dom) > 0 && $email_dom -> hasAttribute('href')) {
+				$email = trim(str_replace('mailto:', '', $email_dom -> getAttribute('href')));
+			} else {
+				$email = '';
+			}
+			$phone_dom = $text_dom -> find('.wpstaff-person-info-phone');
+			if (count($phone_dom) > 0 && $phone_dom -> hasAttribute('href')) {
+				$phone = trim(str_replace('tel:', '', $phone_dom -> getAttribute('href')));
+			} else {
+				$phone = '';
+			}
+		}
+		$image_dom = $wpstaff_person -> find('img');
+		if (count($image_dom) > 0) {
+			if ($image_dom -> hasAttribute('data-src')) {
+				$image = $image_dom -> getAttribute('data-src');
+			} elseif ($image_dom -> hasAttribute('src')) {
+				$image = $image_dom -> getAttribute('src');
+			} else {
+				$image = '';
+			}
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => $phone,
+			'email' => $email,
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function isDisplayable_video_contents($isDisplayable_video_contents) {
+	$result = array();
+	for ($i=0; $i < count($isDisplayable_video_contents); $i++) { 
+		$text_dom = $isDisplayable_video_contents[$i] -> find('.text');
+		if (count($text_dom) > 0) {
+			$title_name_dom = $text_dom -> find('[if^="title"]');
+			if (count($title_name_dom) > 0) {
+				$title_name = explode(',', $title_name_dom -> text()) ;
+				if (sizeof($title_name) > 1) {
+					$name = $title_name[0];
+					$title = $title_name[1];
+				} else {
+					continue;
+				}
+			} else {
+				continue;
+			}
+		}
+		$image_dom = $isDisplayable_video_contents[$i] -> find('.video-youTube iframe');
+		if (count($image_dom) > 0 && $image_dom -> hasAttribute('src')) {
+			$video = $image_dom -> getAttribute('src');
+		} else {
+			$video = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => '',
+			'email' => '',
+			'image' => $video
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function contentGrid_staffListWrapper_staff_items($staff_items) {
+	$result = array();
+	for ($i=0; $i < count($staff_items); $i++) { 
+		$staff_item = $staff_items[$i];
+		$text_dom = $staff_item -> find('.staff');
+		if (count($text_dom) > 0) {
+			$name_dom = $text_dom -> find('.staffName');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				continue;
+			}
+			$title_dom = $text_dom -> find('.staffJobTitle');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text());
+			} else {
+				continue;
+			}
+			$phone_dom = $text_dom -> find('.staffPhone');
+			if (count($phone_dom) > 0) {
+				$phone = trim($phone_dom -> text());
+			} else {
+				$phone = '';
+			}
+			$email_dom = $text_dom -> find('.staffEmail');
+			if (count($email_dom) > 0) {
+				$email = trim($email_dom -> text());
+			} else {
+				$email = '';
+			}
+		} else {
+			continue;
+		}
+		$media_dom = $staff_item -> find('.staffImage');
+		$base_url = parse_url($GLOBALS['url'])['host'];
+		if (count($media_dom) > 0) {
+			if ($media_dom -> hasAttribute('onerror')) {
+				$image = 'https://'.$base_url.'/'.ltrim($media_dom -> getAttribute('src'), '/');
+			} else {
+				$image = '';
+			}
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => $phone,
+			'email' => $email,
 			'image' => $image
 		);
 		if (array_filter($line) && !in_array($line, $result)) {
@@ -519,8 +849,31 @@ function dom_parse(){
 	$box_containers = $dom -> find('#tabs-mtt .member-list [class*=box-container]');
 	$yui3_u_1_6_vcards = $dom -> find('#staffList .yui3-u-1-6 .vcard');
 	$isDisplayable_contents = $dom -> find('.deck section[if^=isDisplayable] .content');
+	$isDisplayable_video = $dom -> find('.deck section[if^=isDisplayable] .content .video-youTube');
 	$tabDisplay_cards = $dom -> find('#tabDisplay .staff-card');
-	if (count($staff_info_items) > 0) {
+	$listing_employee_items = $dom -> find('.listing-employee__department-employee-item');
+	$listing_alpha_items = $dom -> find('.listing-employee-alpha__department-employee-item');
+	$salesman_maincards = $dom -> find('#salesperson-connect .salesman.maincard');
+	$wpstaff_persons = $dom -> find('.fusion-column-wrapper .wpstaff-person');
+	$contentGrid_staffListWrapper_staff_items = $dom -> find('.contentGrid .staffListWrapper .staffItem');
+	if (count($contentGrid_staffListWrapper_staff_items) > 0) {
+		$output = contentGrid_staffListWrapper_staff_items($contentGrid_staffListWrapper_staff_items);
+	}
+	elseif (count($yui3_u_1_6_vcards) > 0) {
+		$output = yui3_u_1_6_vcards($yui3_u_1_6_vcards);
+	}
+	elseif (count($wpstaff_persons)) {
+		$output = wpstaff_persons($wpstaff_persons);
+	}
+	elseif (count($salesman_maincards) > 0) {
+		$output = salesman_maincards($salesman_maincards);
+	}
+	elseif (count($listing_alpha_items) > 0) {
+		$output = listing_alpha_items($listing_alpha_items);
+	}
+	elseif (count($listing_employee_items) > 0) {
+		$output = listing_employee_items($listing_employee_items);
+	} elseif (count($staff_info_items) > 0) {
 		$output = staff_info_items($staff_info_items);
 	} elseif (count($uabb_wraps) > 0) {
 		$output = uabb_wraps($uabb_wraps);
@@ -528,14 +881,15 @@ function dom_parse(){
 		$output = staff_items($staff_items);
 	} elseif (count($box_containers) > 0) {
 		$output = box_containers($box_containers);
-	} elseif (count($yui3_u_1_6_vcards) > 0) {
-		$output = yui3_u_1_6_vcards($yui3_u_1_6_vcards);
-	} elseif (count($isDisplayable_contents) > 0) {
+	} elseif (count($isDisplayable_video) > 0) {
+		$isDisplayable_video_contents = $dom -> find('.deck section[if^=isDisplayable] .content');
+		$output = isDisplayable_video_contents($isDisplayable_video_contents);
+	}
+	 elseif (count($isDisplayable_contents) > 0) {
 		$output = isDisplayable_contents($isDisplayable_contents);
 	} elseif ($tabDisplay_cards) {
 		$output = tabDisplay_cards($GLOBALS['url'], $tabDisplay_cards);
-	}
-	elseif (count($content_doms) > 0) {
+	} elseif (count($content_doms) > 0) {
 		$output = contents($content_doms);
 	}
 
