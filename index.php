@@ -840,6 +840,60 @@ function contentGrid_staffListWrapper_staff_items($staff_items) {
 	}
 	return $result;
 }
+
+function yui3_u_1_cards($yui3_u_1_cards) {
+	$result = array();
+	for ($i=0; $i < count($yui3_u_1_cards); $i++) { 
+		$text_dom = $yui3_u_1_cards[&i] -> find('.contain');
+		if (count($text_dom) > 0) {
+			$name_dom = $text_dom -> firstChild();
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				continue;
+			}
+			$title_dom = $text_dom -> find('.title');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text());
+			} else {
+				continue;
+			}
+			$email_dom = $text_dom -> find('a:first-child');
+			if (count($email_dom) > 0 && $email_dom -> hasAttribute('href')) {
+				$email = trim(str_replace('mailto:', '', $email_dom -> getAttribute('href')));
+			} else {
+				$email = '';
+			}
+			$phone_dom = $text_dom -> find('a:nth-child(2)');
+			if (count($phone_dom) > 0) {
+				$phone = trim($phone_dom -> text());
+			} else {
+				$phone = '';
+			}
+		} else {
+			continue;
+		}
+		$media_dom = $yui3_u_1_cards[$i] -> find('img');
+		if (count($media_dom) > 0) {
+			if ($media_dom -> hasAttribute('src')) {
+				$image = 'https://'.parse_url($GLOBALS['url'])['host'].'/'.ltrim($media_dom -> getAttribute('src'), '/');
+			}
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => $phone,
+			'email' => $email,
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
 function dom_parse(){
 	$dom = $GLOBALS['dom'];
 	$content_doms = $dom -> find('div[class=content]');
@@ -856,7 +910,11 @@ function dom_parse(){
 	$salesman_maincards = $dom -> find('#salesperson-connect .salesman.maincard');
 	$wpstaff_persons = $dom -> find('.fusion-column-wrapper .wpstaff-person');
 	$contentGrid_staffListWrapper_staff_items = $dom -> find('.contentGrid .staffListWrapper .staffItem');
-	if (count($contentGrid_staffListWrapper_staff_items) > 0) {
+	$yui3_u_1_cards = $dom -> find('.yui3-u-1 .inner .colum > .card');
+	if (count($yui3_u_1_cards) > 0) {
+		$output = yui3_u_1_cards($yui3_u_1_cards);
+	}
+	elseif (count($contentGrid_staffListWrapper_staff_items) > 0) {
 		$output = contentGrid_staffListWrapper_staff_items($contentGrid_staffListWrapper_staff_items);
 	}
 	elseif (count($yui3_u_1_6_vcards) > 0) {
