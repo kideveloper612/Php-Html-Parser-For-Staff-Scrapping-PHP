@@ -290,21 +290,21 @@ function box_containers($box_containers) {
 	$result = [];
 	for ($i=0; $i < count($box_containers); $i++) { 
 		$details_sect = $box_containers[$i] -> find('.details-sect');
-		if ($details_sect) {
+		if (count($details_sect) > 0) {
 			$title_dom = $details_sect -> find('.info > .title');
-			if ($title_dom) {
+			if (count($title_dom)) {
 				$title = trim($title_dom -> text());
 			} else {
-				continue;
+				$title = '';
 			}
 			$name_dom = $details_sect -> find('.info .name');
-			if ($name_dom) {
+			if (count($name_dom) > 0) {
 				$name = trim($name_dom -> text());
 			} else {
-				continue;
+				$name = '';
 			}
 			$description_dom = $details_sect -> find('.info .description');
-			if ($description_dom) {
+			if (count($description_dom) > 0) {
 				$description = trim($description_dom -> text());
 			} else {
 				$description = '';
@@ -321,32 +321,92 @@ function box_containers($box_containers) {
 			} else {
 				$email = '';
 			}
-		} else {
-			continue;
-		}
-		$img_sect = $box_containers[$i] -> find('.img-sect');
-		if ($img_sect) {
-			$image_dom = $img_sect -> find('img');
-			if ($image_dom && $image_dom -> hasAttribute('data-src')) {
-				$image = $image_dom -> getAttribute('data-src');
-			} elseif ($image_dom && $image_dom -> hasAttribute('src')) {
-				$image = $image_dom -> getAttribute('src');
+			$img_sect = $box_containers[$i] -> find('.img-sect');
+			if (count($img_sect) > 0) {
+				$image_dom = $img_sect -> find('img');
+				if ($image_dom && $image_dom -> hasAttribute('data-src')) {
+					$image = $image_dom -> getAttribute('data-src');
+				} elseif ($image_dom && $image_dom -> hasAttribute('src')) {
+					$image = $image_dom -> getAttribute('src');
+				} else {
+					$image = '';
+				}
 			} else {
 				$image = '';
 			}
+			$line = array(
+				'name' => $name, 
+				'title' => $title,
+				'description' => '',
+				'phone' => $phone,
+				'email' => '',
+				'image' => $image
+			);
+			if (array_filter($line) && !in_array($line, $result)) {
+				array_push($result, json_encode($line));
+			}
 		} else {
-			$image = '';
+			$name = $title = $phone = $email = '';
 		}
-		$line = array(
-			'name' => $name, 
-			'title' => $title,
-			'description' => '',
-			'phone' => $phone,
-			'email' => '',
-			'image' => $image
-		);
-		if (array_filter($line) && !in_array($line, $result)) {
-			array_push($result, json_encode($line));
+		
+
+		$top_box  = $box_containers[$i] -> find('.top-box');
+		if (count($details_sect) <= 0 && count($top_box) > 0) {
+			$name_dom = $box_containers[$i] -> find('.name');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				$name = '';
+			}
+			$title_dom = $box_containers[$i] -> find('.title');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text());
+			} else {
+				$title = '';
+			}
+			$phone_dom = $box_containers[$i] -> find('.phone-num');
+			if (count($phone_dom) > 0) {
+				if ($phone_dom -> hasAttribute('href')) {
+					$phone = trim(str_replace('tel:', '', $phone_dom -> getAttribute('href')));
+				} else {
+					$phone = '';
+				}
+			} else {
+				$phone = '';
+			}
+			$email_dom = $box_containers[$i] -> find('.email');
+			if (count($email_dom) > 0) {
+				if ($email_dom -> hasAttribute('href')) {
+					$email = trim(str_replace('mailto:', '', $email_dom -> getAttribute('href')));
+				} else {
+					$email = '';
+				}
+			} else {
+				$email = '';
+			}
+			$image_dom = $box_containers[$i] -> find('img');
+			if (count($image_dom) > 0) {
+				if ($image_dom -> hasAttribute('data-src')) {
+					$image = parse_url($GLOBALS['url'])['host'] . $image_dom -> getAttribute('data-src');
+				} elseif ($image_dom -> hasAttribute('src')) {
+					$image = parse_url($GLOBALS['url'])['host'] . $image_dom -> getAttribute('src');
+				} else {
+					$image = '';
+				}
+			} else {
+				$image = '';
+			}
+			$line = array(
+				'name' => $name, 
+				'title' => $title,
+				'description' => '',
+				'phone' => $phone,
+				'email' => '',
+				'image' => $image
+			);
+			if (array_filter($line) && !in_array($line, $result)) {
+				array_push($result, json_encode($line));
+			}
 		}
 	}
 	return $result;
@@ -844,7 +904,7 @@ function contentGrid_staffListWrapper_staff_items($staff_items) {
 function yui3_u_1_cards($yui3_u_1_cards) {
 	$result = array();
 	for ($i=0; $i < count($yui3_u_1_cards); $i++) { 
-		$text_dom = $yui3_u_1_cards[&i] -> find('.contain');
+		$text_dom = $yui3_u_1_cards[$i] -> find('.contain');
 		if (count($text_dom) > 0) {
 			$name_dom = $text_dom -> firstChild();
 			if (count($name_dom) > 0) {
@@ -894,9 +954,289 @@ function yui3_u_1_cards($yui3_u_1_cards) {
 	return $result;
 }
 
+function ddc_MS_staffs($ddc_MS_staffs) {
+	$result = array();
+	for ($i=0; $i < count($ddc_MS_staffs); $i++) { 
+		$text_dom = $ddc_MS_staffs[$i] -> find('section');
+		if (count($text_dom) > 0) {
+			$name_dom = $text_dom -> find('h3');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				continue;
+			}
+			$title_dom = $text_dom -> find('h4');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text());
+			} else {
+				continue;
+			}
+		} else {
+			continue;
+		}
+		$media_dom = $ddc_MS_staffs[$i] -> find('img');
+		if (count($media_dom) > 0) {
+			if ($media_dom -> hasAttribute('data-src')) {
+				$image = 'https:' . $media_dom -> getAttribute('data-src');
+			} elseif ($media_dom -> hasAttribute('src')) {
+				$image = 'https:' . $media_dom -> getAttribute('src');
+			} else {
+				$image = '';
+			}
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => '',
+			'email' => '',
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function archive_posts_staffs($archive_posts_staffs) {
+	print('sd');
+	$result = array();
+	for ($i=0; $i < count($archive_posts_staffs); $i++) { 
+		$text_dom = $archive_posts_staffs[$i] -> find('.staff-archive-info-wrap');
+		if (count($text_dom) > 0) {
+			$name_dom = $text_dom -> find('.staff-archive-name');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				$name = '';
+			}
+			$title_dom = $text_dom -> find('.staff-archive-title');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text());
+			} else {
+				$title = '';
+			}
+			$email_dom = $text_dom -> find('.staff-archive-email');
+			if (count($email_dom) > 0) {
+				$email = trim($email_dom -> text());
+			} else {
+				$email = '';
+			}
+			$phone_dom = $text_dom -> find('.staff-archive-phone a');
+			if (count($phone_dom) > 0 && $phone_dom -> hasAttribute('href')) {
+				$phone = trim(str_replace('tel:', '', $phone_dom -> getAttribute('href')));
+			} else {
+				$phone = '';
+			}
+		}
+		$media_dom = $archive_posts_staffs[$i] -> find('.staff-archive-image-wrap');
+		if (count($media_dom) > 0) {
+			$image_dom = $media_dom -> find('img');
+			if (count($image_dom) > 0) {
+				if ($image_dom -> hasAttribute('data-src')) {
+					$image = trim($image_dom -> getAttribute('data-src'));
+					if (!strpos($image, 'https')) {
+						$image = 'https:' . parse_url($GLOBALS['url'])['host'] . $image;
+					}
+				} elseif ($image_dom -> hasAttribute('src')) {
+					$image = trim($image_dom -> getAttribute('src'));
+					if (!strpos($image, 'https')) {
+						$image = 'https:' . parse_url($GLOBALS['url'])['host'] . $image;
+					}
+				} else {
+					$image = '';
+				}
+			} else {
+				$image = '';	
+			}
+		} else {
+			$image = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => $phone,
+			'email' => $email,
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function grid_infos($grid_infos) {
+	$result = array();
+	for ($i=0; $i < count($grid_infos); $i++) { 
+		$name_dom = $grid_infos[$i] -> find('.name .headline-3');
+		if (count($name_dom) > 0) {
+			$name = trim($name_dom -> text());
+		} else {
+			$name = '';
+		}
+		$title_dom = $grid_infos[$i] -> find('.title .headline-4');
+		if (count($title_dom) > 0) {
+			$title = trim($title_dom -> text());
+		} else {
+			$title = '';
+		}
+		$phone_dom = $grid_infos[$i] -> find('.phone-num');
+		if (count($phone_dom) > 0 && $phone_dom -> hasAttribute('href')) {
+			$phone = trim(str_replace('tel:', '', $phone_dom -> getAttribute('href')));
+		} else {
+			$phone = '';
+		}
+		$email_dom = $grid_infos[$i] -> find('.email');
+		if (count($email_dom) > 0 && $email_dom -> hasAttribute('href')) {
+			$email = trim(str_replace('mailto:', '', $email_dom -> getAttribute('href')));
+		} else {
+			$email = '';
+		}
+		$image_dom = $grid_infos[$i] -> find('img');
+		if (count($image_dom) > 0) {
+			if ($image_dom -> hasAttribute('data-src')) {
+				$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $image_dom -> getAttribute('data-src');
+			} elseif ($image_dom -> hasAttribute('src')) {
+				$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $image_dom -> getAttribute('src');
+			} else {
+				$image = '';
+			}
+		} else {
+			$image = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => $phone,
+			'email' => $email,
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function StaffMemberBoxs($StaffMemberBoxs) {
+	$result = array();
+	for ($i=0; $i < count($StaffMemberBoxs); $i++) { 
+		$name_dom = $StaffMemberBoxs[$i] -> find('font');
+		if (count($name_dom) > 0) {
+			$name = trim($name_dom -> text());
+		} else {
+			$name = '';
+		}
+		$title_dom = $StaffMemberBoxs[$i] -> find('p');
+		if (count($title_dom) > 0) {
+			$title = trim($title_dom -> text());
+		} else {
+			$title = '';
+		}
+		$image_dom = $StaffMemberBoxs[$i] -> find('img');
+		if (count($image_dom) > 0) {
+			if ($image_dom -> hasAttribute('data-src')) {
+				$image = trim($image_dom -> getAttribute('data-src'));
+			} elseif ($image_dom -> hasAttribute('src')) {
+				$image = trim($image_dom -> getAttribute('src'));
+			} else {
+				$image = '';
+			}
+		} else {
+			$image = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => '',
+			'email' => '',
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function team_members($team_members) {
+	function get_string_between($string, $start, $end){
+	    $string = ' ' . $string;
+	    $ini = strpos($string, $start);
+	    if ($ini == 0) return '';
+	    $ini += strlen($start);
+	    $len = strpos($string, $end, $ini) - $ini;
+	    return substr($string, $ini, $len);
+	}
+	$result = array();
+	for ($i=0; $i < count($team_members); $i++) { 
+		$team_meta = $team_members[$i] -> find('.team-meta');
+		if (count($team_meta) > 0) {
+			$name_dom = $team_meta -> find('h3');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				$name = '';
+			}
+			$title_dom = $team_meta -> find('p');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text());
+			} else {
+				$title = '';
+			}
+			$modal_id = $team_members[$i] -> find('a');	
+			if (count($modal_id) > 0 && $modal_id -> hasAttribute('href')) {
+				$id = $modal_id -> getAttribute('href');
+				$modal_dom = $GLOBALS['dom']-> find($id);
+				if (count($modal_dom) > 0) {
+					$phone_dom = $modal_dom -> find('.phone1 a');
+					if (count($phone_dom) > 0) {
+						$phone = trim($phone_dom -> text());
+					} else {
+						$phone = '';
+					}
+					$email_dom = $modal_dom -> find('.email a');
+					if (count($email_dom) > 0 && $email_dom -> hasAttribute('href')) {
+						$email = trim(str_replace('mailto:', '', $email_dom -> getAttribute('href')));
+					} else {
+						$email = '';
+					}
+				} else {
+					$phone = $email = '';
+				}
+			} else {
+				$phone = $email = '';
+			}
+		}
+		$image_dom = $team_members[$i] -> find('.team-member-image');
+		if (count($image_dom) > 0 && $image_dom -> hasAttribute('style')) {
+			$image = 'https://' . parse_url($GLOBALS['url'])['host'] . get_string_between($image_dom -> getAttribute('style'), "background-image: url('", "');");
+		} else {
+			$image = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => $phone,
+			'email' => $email,
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
 function dom_parse(){
 	$dom = $GLOBALS['dom'];
-	$content_doms = $dom -> find('div[class=content]');
+	$content_doms = $dom -> find('[template^="employeeTitle"]');
 	$staff_info_items = $dom -> find('li[class*=staff-info__item]');
 	$staff_items = $dom -> find('li[class*=staff-item]');
 	$uabb_wraps = $dom -> find('[class*=uabb-team-member-wrap]');
@@ -911,7 +1251,32 @@ function dom_parse(){
 	$wpstaff_persons = $dom -> find('.fusion-column-wrapper .wpstaff-person');
 	$contentGrid_staffListWrapper_staff_items = $dom -> find('.contentGrid .staffListWrapper .staffItem');
 	$yui3_u_1_cards = $dom -> find('.yui3-u-1 .inner .colum > .card');
-	if (count($yui3_u_1_cards) > 0) {
+	$ddc_MS_staffs = $dom -> find('.ddc-span12 .content .MS-staff');
+	$archive_posts_staffs = $dom -> find('.archive-posts-wrap .staff-member');
+	$grid_infos = $dom -> find('.meet-the-team #tabs-mtt .mtt-tab .box .grid-x.info');
+	$StaffMemberBoxs = $dom -> find('.ddc-span12 .tab-content section.StaffMemberBox');
+	$team_members = $dom -> find('#pageContent .team-member-overlay');
+	if (count($content_doms) > 0) {
+		if (count($dom -> find('div[class=content]')) > 0) {
+			$output = contents($dom -> find('div[class=content]'));
+		}
+	}
+	elseif (count($team_members) > 0) {
+		$output = team_members($team_members);
+	}
+	elseif (count($StaffMemberBoxs) > 0) {
+		$output = StaffMemberBoxs($StaffMemberBoxs);
+	}
+	elseif (count($grid_infos) > 0) {
+		$output = grid_infos($grid_infos);
+	}
+	elseif (count($archive_posts_staffs) > 0) {
+		$output = archive_posts_staffs($archive_posts_staffs);
+	}
+	elseif (count($ddc_MS_staffs) > 0 ){
+		$output = ddc_MS_staffs($ddc_MS_staffs);
+	}
+	elseif (count($yui3_u_1_cards) > 0) {
 		$output = yui3_u_1_cards($yui3_u_1_cards);
 	}
 	elseif (count($contentGrid_staffListWrapper_staff_items) > 0) {
@@ -947,55 +1312,12 @@ function dom_parse(){
 		$output = isDisplayable_contents($isDisplayable_contents);
 	} elseif ($tabDisplay_cards) {
 		$output = tabDisplay_cards($GLOBALS['url'], $tabDisplay_cards);
-	} elseif (count($content_doms) > 0) {
-		$output = contents($content_doms);
 	}
 
-	// if (empty($output)) {
-	// 	return 'no';
-	// } else {
-	// 	return 'yes';
-	// }
-	
 	echo "<pre>";
 	print_r($output);
 	echo "</pre>";
 }
-
-
-// function read_urls() {
-// 	$file_name = './urls.csv';
-// 	$file = fopen($file_name, 'r');
-// 	$result = [];
-// 	while (! feof($file)) {
-// 		$line = fgetcsv($file);
-// 		if (is_array($line) && ! empty($line)) {
-// 			if (! in_array($line[0], $result)) {
-// 				array_push($result, $line[0]);
-// 			}
-// 		}
-// 	}
-// 	fclose($file);
-// 	return $result;
-// }
-
-// $urls = read_urls();
-// $urls = ['http://www.tonkinchevy.com/MeetOurDepartments'];
-// $dom = new Dom;
-// $fp = fopen('yet.csv', 'a');
-// $count = 0;
-// foreach ($urls as $url) {
-// 	$count += 1;
-// 	echo($count.' '.$url."\n");
-// 	$response = send_request($url);
-// 	$dom->load($response);
-// 	$r = dom_parse();
-// 	echo($r);
-// 	if ($r === 'no') {
-// 		fputcsv($fp, [$url]);
-// 	}
-// }
-// fclose($fp);
 
 
 $dom = new Dom;
