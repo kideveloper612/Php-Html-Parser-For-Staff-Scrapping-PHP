@@ -2155,7 +2155,7 @@ function tab_pane_staff_cards($tab_pane_staff_cards) {
 			} else {
 				$title = '';
 			}
-			$phone_dom = $text_dom -> find('.role:nth-child(2)');
+			$phone_dom = $title_dom -> nextSibling() -> nextSibling();
 			if (count($phone_dom) > 0) {
 				$phone_tmp = explode('x', $phone_dom -> text());
 				if (count($phone_tmp) > 0) {
@@ -2166,13 +2166,16 @@ function tab_pane_staff_cards($tab_pane_staff_cards) {
 			} else {
 				$phone = '';
 			}
-			$email_dom = $text_dom -> find('a');
-			if (count($email_dom) > 0 && $email_dom -> hasAttribute('href')) {
-				$email = trim(str_replace('mailto:', '', $email_dom -> getAttribute('href')));
-			} else {
-				$email = '';
-			}
-			$media_dom = $text_dom -> find('img');
+		} else {
+			$name = $title = $phone = '';
+		}
+		$email_dom = $tab_pane_staff_cards[$i] -> find('.mdl-box-shadow a');
+		if (count($email_dom) > 0 && $email_dom -> hasAttribute('href')) {
+			$email = trim(str_replace('mailto:', '', $email_dom -> getAttribute('href')));
+		} else {
+			$email = '';
+		}
+		$media_dom = $tab_pane_staff_cards[$i] -> find('img');
 			if (count($media_dom) > 0) {
 				if ($media_dom -> hasAttribute('data-src')) {
 					if (is_int(strpos($media_dom -> getAttribute('data-src'), 'http'))) {
@@ -2192,7 +2195,205 @@ function tab_pane_staff_cards($tab_pane_staff_cards) {
 			} else {
 				$image = '';
 			}
-			$line = array(
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => $phone,
+			'email' => $email,
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function form_staff_cards($form_staff_cards) {
+	$result = array();
+	for ($i=0; $i < count($form_staff_cards); $i++) { 
+		$text_dom = $form_staff_cards[$i] -> find('.mdl-box-shadow.detail');
+		if (count($text_dom) > 0) {
+			$name_dom = $text_dom -> find('.name');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				$name = '';
+			}
+			$title_dom = $text_dom -> find('.role');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text());
+			} else {
+				$title = '';
+			}
+			$phone_dom = $title_dom -> nextSibling() -> nextSibling();
+			if (count($phone_dom) > 0) {
+				$phone_tmp = explode('x', $phone_dom -> text());
+				if (count($phone_tmp) > 0) {
+					$phone = trim($phone_tmp[0]);
+				} else {
+					$phone = '';
+				}
+			} else {
+				$phone = '';
+			}
+		}
+		$email_dom = $form_staff_cards[$i] -> find('.mdl-box-shadow a');
+		if (count($email_dom) > 0 && $email_dom -> hasAttribute('href')) {
+			$email = trim(str_replace('mailto:', '', $email_dom -> getAttribute('href')));
+		} else {
+			$email = '';
+		}
+		$media_dom = $form_staff_cards[$i] -> find('img');
+			if (count($media_dom) > 0) {
+				if ($media_dom -> hasAttribute('data-src')) {
+					if (is_int(strpos($media_dom -> getAttribute('data-src'), 'http'))) {
+						$image = $media_dom -> getAttribute('data-src');
+					} else {
+						$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('data-src');
+					}
+				} elseif ($media_dom -> hasAttribute('src')) {
+					if (is_int(strpos($media_dom -> getAttribute('src'), 'http'))) {
+						$image = $media_dom -> getAttribute('src');
+					} else {
+						$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('src');
+					}
+				} else {
+					$image = '';
+				}
+			} else {
+				$image = '';
+			}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => $phone,
+			'email' => $email,
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function tabDisplay_staff_cards($tabDisplay_staff_cards) {
+	$result = array();
+	for ($i=0; $i < count($tabDisplay_staff_cards); $i++) { 
+		$text_dom = $tabDisplay_staff_cards[$i] -> find('.staff-info');
+		if (count($text_dom) > 0) {
+			$name_dom = $text_dom -> find('.staff-title');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				$name = '';
+			}
+			$title_dom = $text_dom -> find('.staff-desc em');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text()); 
+			} else {
+				$title = '';
+			}
+			$phone_dom = $text_dom -> find('a[aria-label="Phone"]');
+			if (count($phone_dom) > 0 && $phone_dom -> hasAttribute('href')) {
+				$phone = trim(str_replace('tel:', '', $phone_dom -> getAttribute('href')));
+			} else {
+				$phone = '';
+			}
+			$email_dom = $text_dom -> find('a[aria-label="Email"]');
+			if (count($email_dom) > 0 && $email_dom -> hasAttribute('href')) {
+				$email = trim(str_replace('mailto:', '', $email_dom -> getAttribute('href')));
+			} else {
+				$email = '';
+			}
+		} else {
+			continue;
+		}
+		$media_dom = $tabDisplay_staff_cards[$i] -> find('.staff-img img');
+		if (count($media_dom) > 0) {
+			if ($media_dom -> hasAttribute('data-src')) {
+				if (is_int(strpos($media_dom -> getAttribute('data-src'), 'http'))) {
+					$image = $media_dom -> getAttribute('data-src');
+				} else {
+					$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('data-src');
+				}
+			} elseif ($media_dom -> hasAttribute('src')) {
+				if (is_int(strpos($media_dom -> getAttribute('src'), 'http'))) {
+					$image = $media_dom -> getAttribute('src');
+				} else {
+					$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('src');
+				}
+			} else {
+				$image = '';
+			}
+		} else {
+			$image = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => $phone,
+			'email' => $email,
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function tabDisplay_staff_medias($tabDisplay_staff_medias) {
+	$result = array();
+	for ($i=0; $i < count($tabDisplay_staff_medias); $i++) { 
+		$text_dom = $tabDisplay_staff_medias[$i] -> find('.media-body');
+		if (count($text_dom) > 0) {
+			$name_dom = $text_dom -> find('.staff-title-name attr');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				$name = '';
+			}
+			$title_dom = $text_dom -> find('.staff-title-position em');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text());
+			} else {
+				$title = '';
+			}
+			$phone_dom = $text_dom -> find('a[aria-label="Phone"]');
+			if (count($phone_dom) > 0) {
+				$phone = trim($phone_dom -> text());
+			} else {
+				$phone = '';
+			}
+		} else {
+			continue;
+		}
+		$media_dom = $tabDisplay_staff_medias[$i] -> find('.media-left img');
+		if (count($media_dom) > 0) {
+			if ($media_dom -> hasAttribute('data-src')) {
+				if (is_int(strpos($media_dom -> getAttribute('data-src'), 'http'))) {
+					$image = $media_dom -> getAttribute('data-src');
+				} else {
+					$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('data-src');
+				}
+			} elseif ($media_dom -> hasAttribute('src')) {
+				if (is_int(strpos($media_dom -> getAttribute('src'), 'http'))) {
+					$image = $media_dom -> getAttribute('src');
+				} else {
+					$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('src');
+				}
+			} else {
+				$image = '';
+			}
+		} else {
+			$image = '';
+		}
+		$line = array(
 			'name' => $name, 
 			'title' => $title,
 			'description' => '',
@@ -2203,6 +2404,352 @@ function tab_pane_staff_cards($tab_pane_staff_cards) {
 		if (array_filter($line) && !in_array($line, $result)) {
 			array_push($result, json_encode($line));
 		}
+	}
+	return $result;
+}
+
+function margin_vert_staff_employees($margin_vert_staff_employees) {
+	$result = array();
+	for ($i=0; $i < count($margin_vert_staff_employees); $i++) { 
+		$name_dom = $margin_vert_staff_employees[$i] -> find('.employee__name strong');
+		if (count($name_dom) > 0) {
+			$name = trim($name_dom -> text());
+		} else {
+			$name = '';
+		}
+		$title_dom = $margin_vert_staff_employees[$i] -> find('.employee__title');
+		if (count($title_dom) > 0) {
+			$title = trim($title_dom -> text());
+		} else {
+			$title = '';
+		}
+		$email_dom = $margin_vert_staff_employees[$i] -> find('.employee__email a');
+		if (count($email_dom) > 0 && $email_dom -> hasAttribute('href')) {
+			$email = trim(str_replace('mailto:', '', $email_dom -> getAttribute('href')));
+		} else {
+			$email = '';
+		}
+		$phone_dom = $margin_vert_staff_employees[$i] -> find('.employee__phone a');
+		if (count($phone_dom) > 0) {
+			$phone = trim($phone_dom -> text());
+		} else {
+			$phone = '';
+		}
+		$media_dom = $margin_vert_staff_employees[$i] -> find('.img__circle-wrap img');
+		if (count($media_dom) > 0) {
+			if ($media_dom -> hasAttribute('data-src')) {
+				if (is_int(strpos($media_dom -> getAttribute('data-src'), 'http'))) {
+					$image = $media_dom -> getAttribute('data-src');
+				} else {
+					$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('data-src');
+				}
+			} elseif ($media_dom -> hasAttribute('src')) {
+				if (is_int(strpos($media_dom -> getAttribute('src'), 'http'))) {
+					$image = $media_dom -> getAttribute('src');
+				} else {
+					$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('src');
+				}
+			} else {
+				$image = '';
+			}
+		} else {
+			$image = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => $phone,
+			'email' => $email,
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function wrapper_staff_members($wrapper_staff_members) {
+	$result = array();
+	for ($i=0; $i < count($wrapper_staff_members); $i++) { 
+		$name_dom = $wrapper_staff_members[$i] -> find('.name');
+		if (count($name_dom) > 0) {
+			$name = trim($name_dom -> text());
+		} else {
+			$name = '';
+		}
+		$title_dom = $wrapper_staff_members[$i] -> find('.title');
+		if (count($title_dom) > 0) {
+			$title = trim($title_dom -> text());
+		} else {
+			$title = '';
+		}
+		$media_dom = $wrapper_staff_members[$i] -> find('.img-wrapper img');
+		if (count($media_dom) > 0) {
+			if ($media_dom -> hasAttribute('data-src')) {
+				if (is_int(strpos($media_dom -> getAttribute('data-src'), 'http'))) {
+					$image = $media_dom -> getAttribute('data-src');
+				} else {
+					$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('data-src');
+				}
+			} elseif ($media_dom -> hasAttribute('src')) {
+				if (is_int(strpos($media_dom -> getAttribute('src'), 'http'))) {
+					$image = $media_dom -> getAttribute('src');
+				} else {
+					$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('src');
+				}
+			} else {
+				$image = '';
+			}
+		} else {
+			$image = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => '',
+			'email' => '',
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function ddc_yui3_row_column_cards($ddc_yui3_row_column_cards) {
+	$result = array();
+	for ($i=0; $i < count($ddc_yui3_row_column_cards); $i++) { 
+		$text_dom = $ddc_yui3_row_column_cards[$i] -> find('.contain');
+		if (count($text_dom) > 0) {
+			$name_dom = $text_dom -> find('h2');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				$name = '';
+			}
+			$title_dom = $text_dom -> find('.title');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text());
+			} else {
+				$title = '';
+			}
+			$email_dom = $text_dom -> find('a.button');
+			if (count($email_dom) > 0) {
+				$email = trim(str_replace('mailto:', '', $email_dom -> getAttribute('href')));
+			} else {
+				$email = '';
+			}
+			$phone_dom_tmp = $email_dom -> getParent() -> previousSibling() -> previousSibling();
+			if (count($phone_dom_tmp) > 0) {
+				$phone_dom = $phone_dom_tmp -> find('a');
+				if (count($phone_dom) > 0) {
+					$phone = trim($phone_dom -> text());
+				} else {
+					$phone = '';
+				}
+			} else {
+				$phone = '';
+			}
+		}
+		$media_dom = $ddc_yui3_row_column_cards[$i] -> find('img');
+		if (count($media_dom) > 0) {
+			if ($media_dom -> hasAttribute('data-src')) {
+				if (is_int(strpos($media_dom -> getAttribute('data-src'), 'http'))) {
+					$image = $media_dom -> getAttribute('data-src');
+				} else {
+					$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('data-src');
+				}
+			} elseif ($media_dom -> hasAttribute('src')) {
+				if (is_int(strpos($media_dom -> getAttribute('src'), 'http'))) {
+					$image = $media_dom -> getAttribute('src');
+				} else {
+					$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('src');
+				}
+			} else {
+				$image = '';
+			}
+		} else {
+			$image = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => $phone,
+			'email' => $email,
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function yui3_g_td_centers($yui3_g_td_centers) {
+	$result = array();
+	for ($i=0; $i < count($yui3_g_td_centers); $i++) { 
+		$inner_dom = $yui3_g_td_centers[$i] -> find('strong');
+		if (count($inner_dom) > 0) {
+			if (count($inner_dom) > 0) {
+				$title_name = explode(" ", trim($inner_dom -> text()));
+				if (sizeof($title_name) > 1) {
+					$name = $title_name[0];
+					$title = end($title_name);
+				} else {
+					continue;
+				}
+			}
+			$media_dom = $inner_dom -> find('img');
+			if (count($media_dom) > 0) {
+				if ($media_dom -> hasAttribute('data-src')) {
+					if (is_int(strpos($media_dom -> getAttribute('data-src'), 'http'))) {
+						$image = $media_dom -> getAttribute('data-src');
+					} else {
+						$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('data-src');
+					}
+				} elseif ($media_dom -> hasAttribute('src')) {
+					if (is_int(strpos($media_dom -> getAttribute('src'), 'http'))) {
+						$image = $media_dom -> getAttribute('src');
+					} else {
+						$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('src');
+					}
+				} else {
+					$image = '';
+				}
+			} else {
+				continue;
+			}
+			$line = array(
+				'name' => $name, 
+				'title' => $title,
+				'description' => '',
+				'phone' => '',
+				'email' => '',
+				'image' => $image
+			);
+			if (array_filter($line) && !in_array($line, $result)) {
+				array_push($result, json_encode($line));
+			}
+		}
+	}
+	return $result;
+}
+
+function fl_cols($fl_cols) {
+	$result = array();
+	for ($i=0; $i < count($fl_cols); $i++) { 
+		$name_dom = $fl_cols[$i] -> find('.uabb-team-name-text');
+		if (count($name_dom) > 0) {
+			$name = trim($name_dom -> text());
+		} else {
+			$name = '';
+		}
+		$title_dom = $fl_cols[$i] -> find('.uabb-team-desgn-text');
+		if (count($title_dom) > 0) {
+			$title = trim($title_dom -> text());
+		} else {
+			$title = '';
+		}
+		$description_dom = $fl_cols[$i] -> find('.uabb-team-desc-text');
+		if (count($description_dom) > 0) {
+			$description = trim($description_dom -> text());
+		} else {
+			$description = '';
+		}
+		$media_dom = $fl_cols[$i] -> find('.uabb-image-content img');
+		if (count($media_dom) > 0) {
+			if ($media_dom -> hasAttribute('data-src')) {
+				if (is_int(strpos($media_dom -> getAttribute('data-src'), 'http'))) {
+					$image = $media_dom -> getAttribute('data-src');
+				} else {
+					$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('data-src');
+				}
+			} elseif ($media_dom -> hasAttribute('src')) {
+				if (is_int(strpos($media_dom -> getAttribute('src'), 'http'))) {
+					$image = $media_dom -> getAttribute('src');
+				} else {
+					$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('src');
+				}
+			} else {
+				$image = '';
+			}
+		} else {
+			$image = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => $description,
+			'phone' => '',
+			'email' => '',
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
+function staff_item_groups($staff_item_groups) {
+	$result = array();
+	for ($i=0; $i < count($staff_item_groups); $i++) { 
+		$text_dom = $staff_item_groups[$i] -> find('.staffNameAndTitleWrapper');
+		if (count($text_dom) > 0) {
+			$name_dom = $text_dom -> find('[itemprop^="name"]');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				$name = '';
+			}
+			$title_dom = $text_dom -> find('[itemprop^="jobTitle"]');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text());
+			} else {
+				$title = '';
+			}
+		} else {
+			$name = $title = '';
+		}
+		$phone_dom = $staff_item_groups[$i] -> find('[itemprop^="telephone"]');
+		if (count($phone_dom) > 0) {
+			$phone = trim($phone_dom -> text());
+		} else {
+			$phone = '';
+		}
+		$email_dom = $staff_item_groups[$i] -> find('[itemprop^="email"]');
+		if (count($email_dom) > 0) {
+			$email = trim($email_dom -> text());
+		} else {
+			$email = '';
+		}
+		$media_dom = $staff_item_groups[$i] -> find('.staffImageContainer img');
+		if (count($media_dom) > 0) {
+			if ($media_dom -> hasAttribute('data-src')) {
+				$image = 'https:' . $media_dom -> getAttribute('data-src');
+			} elseif ($media_dom -> hasAttribute('src')) {
+				$image = 'https:' . $media_dom -> getAttribute('src');
+			} else {
+				$image = '';
+			}
+		} else {
+			$image = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => $phone,
+			'email' => $email,
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
 		}
 	}
 	return $result;
@@ -2242,12 +2789,48 @@ function dom_parse(){
 	$partialView_employee_tiles = $dom -> find('.employee-list .employee-tile');
 	$staff_department_salesmans = $dom -> find('#salesperson-connect .staff-department .salesman');
 	$tab_pane_staff_cards = $dom -> find('.agile-wrap .tab-content .tab-pane .staff-card');
+	$form_staff_cards = $dom -> find('form section#staff .tab-content .tab-pane .staff-card');
+	$tabDisplay_staff_cards = $dom -> find('#content #content-main #tabDisplay .tab-content .staff-card');
+	$tabDisplay_staff_medias = $dom -> find('.contentWrapper .staff-page #tabDisplay .tab-pane .staff.media');
+	$margin_vert_staff_employees = $dom -> find('#content .contentWrapper #pageContent .staff .employee');
+	$wrapper_staff_members = $dom -> find('.staff-wrapper article .row .staff-member');
+	$ddc_yui3_row_column_cards = $dom -> find('.ddc-wrapper .page-bd .yui3-g .yui3-u-1 .inner .bd .bd2 .row .column .card');
+	$yui3_g_td_centers = $dom -> find('.ddc-wrapper .page-bd .yui3-g .yui3-u-1 .ddc-content table td');
+	$fl_cols = $dom -> find('#fl-main-content article.fl-post .fl-col-group .fl-col-content .fl-col');
+	$staff_item_groups = $dom -> find('li[data-mh^="staff-item-group"]');
 	if (count($content_doms) > 0) {
 		if (count($dom -> find('div[class=content]')) > 0) {
 			$output = contents($dom -> find('div[class=content]'));
 		}
 	}
-	elseif (count($tab_pane_staff_cards) > 0) {
+	elseif (count($staff_item_groups) > 0) {
+		$output = staff_item_groups($staff_item_groups);
+	}
+	elseif (count($fl_cols) > 0) {
+		$output = fl_cols($fl_cols);
+	}
+	elseif (count($yui3_g_td_centers) > 0) {
+		$output = yui3_g_td_centers($yui3_g_td_centers);
+	}
+	elseif (count($ddc_yui3_row_column_cards) > 0) {
+		$output = ddc_yui3_row_column_cards($ddc_yui3_row_column_cards);
+	}
+	elseif (count($wrapper_staff_members) > 0) {
+		$output = wrapper_staff_members($wrapper_staff_members);
+	}
+	elseif (count($margin_vert_staff_employees) > 0) {
+		$output = margin_vert_staff_employees($margin_vert_staff_employees);
+	}
+	elseif (count($tabDisplay_staff_medias) > 0) {
+		$output = tabDisplay_staff_medias($tabDisplay_staff_medias);
+	}
+	elseif (count($tabDisplay_staff_cards) > 0) {
+		$output = tabDisplay_staff_cards($tabDisplay_staff_cards);
+	}
+	elseif (count($form_staff_cards) > 0) {
+		$output = form_staff_cards($form_staff_cards);
+	}
+	elseif (count($tab_pane_staff_cards) > 0) { 
 		$output = tab_pane_staff_cards($tab_pane_staff_cards);
 	}
 	elseif (count($staff_department_salesmans) > 0) {
