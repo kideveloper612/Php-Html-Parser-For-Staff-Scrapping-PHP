@@ -2930,7 +2930,6 @@ function dom_parse(){
 	echo "</pre>";
 }
 
-
 $dom = new Dom;
 $response = send_request($url);
 $dom->load($response);
