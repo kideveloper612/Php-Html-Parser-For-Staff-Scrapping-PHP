@@ -2755,6 +2755,65 @@ function staff_item_groups($staff_item_groups) {
 	return $result;
 }
 
+function staffMembers($staffMembers) {
+	$result = array();
+	for ($i=0; $i < count($staffMembers); $i++) { 
+		$text_dom = $staffMembers[$i] -> find('.staff-info__text-wrap');
+		if (count($text_dom) > 0) {
+			$name_dom = $text_dom -> find('.staff-info__name .h6');
+			if (count($name_dom) > 0) {
+				$name = trim($name_dom -> text());
+			} else {
+				$name = '';
+			}
+			$title_dom = $text_dom -> find('.staff-info__job-title');
+			if (count($title_dom) > 0) {
+				$title = trim($title_dom -> text());
+			} else {
+				$title = '';
+			}
+			$email_dom = $text_dom -> find('a.staff-info__email-link');
+			if (count($email_dom) > 0 && $email_dom -> hasAttribute('href')) {
+				$email = trim(str_replace('mailto:', '', $email_dom -> getAttribute('href')));
+			} else {
+				$email = '';
+			}
+		}
+		$media_dom = $staffMembers[$i] -> find('.staff-info__image img');
+		if (count($media_dom) > 0) {
+			if ($media_dom -> hasAttribute('data-src')) {
+				if (is_int(strpos($media_dom -> getAttribute('data-src'), 'http'))) {
+					$image = $media_dom -> getAttribute('data-src');
+				} else {
+					$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('data-src');
+				}
+			} elseif ($media_dom -> hasAttribute('src')) {
+				if (is_int(strpos($media_dom -> getAttribute('src'), 'http'))) {
+					$image = $media_dom -> getAttribute('src');
+				} else {
+					$image = 'https://' . parse_url($GLOBALS['url'])['host'] . $media_dom -> getAttribute('src');
+				}
+			} else {
+				$image = '';
+			}
+		} else {
+			$image = '';
+		}
+		$line = array(
+			'name' => $name, 
+			'title' => $title,
+			'description' => '',
+			'phone' => '',
+			'email' => $email,
+			'image' => $image
+		);
+		if (array_filter($line) && !in_array($line, $result)) {
+			array_push($result, json_encode($line));
+		}
+	}
+	return $result;
+}
+
 function dom_parse(){
 	$dom = $GLOBALS['dom'];
 	$content_doms = $dom -> find('[template^="employeeTitle"]');
@@ -2798,10 +2857,14 @@ function dom_parse(){
 	$yui3_g_td_centers = $dom -> find('.ddc-wrapper .page-bd .yui3-g .yui3-u-1 .ddc-content table td');
 	$fl_cols = $dom -> find('#fl-main-content article.fl-post .fl-col-group .fl-col-content .fl-col');
 	$staff_item_groups = $dom -> find('li[data-mh^="staff-item-group"]');
+	$staffMembers = $dom -> find('#main .tab-content .staff-info__items .staff-info__item');
 	if (count($content_doms) > 0) {
 		if (count($dom -> find('div[class=content]')) > 0) {
 			$output = contents($dom -> find('div[class=content]'));
 		}
+	}
+	elseif (count($staffMembers) > 0) {
+		$output = staffMembers($staffMembers);
 	}
 	elseif (count($staff_item_groups) > 0) {
 		$output = staff_item_groups($staff_item_groups);
