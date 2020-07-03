@@ -7,6 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 	echo("Just GET REQUESTS are allowed!");
 	return;
 }
+
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['url'])) {
 	$url = $_GET['url'];
 } else {
