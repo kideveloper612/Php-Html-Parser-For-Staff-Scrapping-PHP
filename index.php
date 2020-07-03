@@ -1,10 +1,7 @@
 <?php
-echo phpinfo();
-die();
 // Assuming you installed from Composer:
 require "vendor/autoload.php";
 use PHPHtmlParser\Dom;
-
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 	echo("Just GET REQUESTS are allowed!");
