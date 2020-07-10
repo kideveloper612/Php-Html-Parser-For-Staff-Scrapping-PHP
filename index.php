@@ -1,4 +1,5 @@
 <?php
+
 // Assuming you installed from Composer:
 require "vendor/autoload.php";
 use PHPHtmlParser\Dom;
